@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Vibe Studio">
+<title>Vibe Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & BASE ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{
+  height:100%;min-height:100dvh;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:#F5F5F7;
+  color:#1A1A2E;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,textarea,select{font-family:inherit;outline:none;border:none}
+a{text-decoration:none;color:inherit}
+::-webkit-scrollbar{width:0;height:0}
+
+/* ─── CSS VARS ─────────────────────────────────────────── */
+:root{
+  --white:#FFFFFF;
+  --bg:#F5F5F7;
+  --surface:#FFFFFF;
+  --surface2:#F9F9FB;
+  --border:#E8E8ED;
+  --border2:#D1D1D6;
+  --text:#1A1A2E;
+  --text2:#6E6E87;
+  --text3:#AEAEC0;
+  --accent:#1A1A2E;
+  --accent2:#3D3D5C;
+  --blue:#0066FF;
+  --blue-light:#EBF2FF;
+  --green:#00B96B;
+  --green-light:#E6F9F1;
+  --red:#FF3B30;
+  --red-light:#FFF0EF;
+  --orange:#FF9500;
+  --orange-light:#FFF5E6;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow:0 4px 16px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.04);
+  --shadow-lg:0 20px 60px rgba(0,0,0,0.12),0 8px 24px rgba(0,0,0,0.06);
+  --radius:16px;
+  --radius-sm:10px;
+  --radius-xs:8px;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,20px);
+  --nav-h:72px;
+  --topbar-h:60px;
+}
+
+/* ─── LAYOUT ───────────────────────────────────────────── */
+#shell{
+  display:flex;flex-direction:column;
+  height:100dvh;
+  position:relative;
+  overflow:hidden;
+}
+#topbar{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  background:rgba(255,255,255,0.92);
+  -webkit-backdrop-filter:blur(20px);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  height:calc(var(--topbar-h) + var(--safe-t));
+  padding-top:var(--safe-t);
+  display:flex;align-items:center;
+  padding-left:20px;padding-right:20px;
+  gap:12px;
+}
+#topbar-title{font-size:20px;font-weight:800;color:var(--text);flex:1;letter-spacing:-0.4px}
+.tb-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  height:38px;padding:0 16px;
+  border-radius:50px;
+  font-size:14px;font-weight:700;
+  transition:transform 0.12s,opacity 0.12s;
+  white-space:nowrap;
+}
+.tb-btn:active{transform:scale(0.94);opacity:0.8}
+.tb-btn-primary{background:var(--accent);color:#fff}
+.tb-btn-secondary{background:var(--surface);color:var(--text);box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.tb-icon-btn{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--surface);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  box-shadow:var(--shadow-sm);
+  border:1px solid var(--border);
+  transition:transform 0.12s;
+}
+.tb-icon-btn:active{transform:scale(0.9)}
+
+#page{
+  position:fixed;
+  top:calc(var(--topbar-h) + var(--safe-t));
+  left:0;right:0;
+  bottom:calc(var(--nav-h) + var(--safe-b));
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+}
+#page-inner{padding:16px 16px 24px;min-height:100%}
+
+#bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:rgba(255,255,255,0.95);
+  -webkit-backdrop-filter:blur(20px);
+  backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  height:calc(var(--nav-h) + var(--safe-b));
+  padding-bottom:var(--safe-b);
+  display:flex;align-items:stretch;
+}
+.nav-tabs{display:flex;flex:1;padding:6px 8px 0}
+.nav-tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  background:none;border:none;
+  padding:4px 2px;
+  border-radius:12px;
+  transition:background 0.15s;
+  position:relative;
+}
+.nav-tab:active{background:var(--bg)}
+.nav-tab .ni{font-size:22px;line-height:1;transition:transform 0.2s cubic-bezier(.34,1.56,.64,1)}
+.nav-tab .nl{font-size:10px;font-weight:600;color:var(--text3);transition:color 0.15s;letter-spacing:0.01em}
+.nav-tab.active .ni{transform:scale(1.1)}
+.nav-tab.active .nl{color:var(--blue)}
+.nav-badge{
+  position:absolute;top:4px;right:calc(50% - 20px);
+  background:var(--red);color:#fff;
+  font-size:9px;font-weight:800;
+  min-width:16px;height:16px;
+  border-radius:50px;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 4px;
+  border:2px solid #fff;
+}
+
+/* ─── CARDS ────────────────────────────────────────────── */
+.card{
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);
+  border:1px solid var(--border);
+  overflow:hidden;
+}
+.card-body{padding:16px}
+.card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px;
+  border-bottom:1px solid var(--border);
+}
+.card-title{font-size:15px;font-weight:700;color:var(--text)}
+.card-sub{font-size:12px;color:var(--text3);margin-top:1px}
+
+/* ─── STAT CARDS ───────────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-card{
+  background:var(--surface);border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);border:1px solid var(--border);
+  padding:16px;position:relative;overflow:hidden;
+}
+.stat-card-wide{grid-column:span 2}
+.stat-icon-wrap{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;margin-bottom:12px;
+}
+.stat-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:2px}
+.stat-value{font-size:26px;font-weight:800;color:var(--text);letter-spacing:-0.5px;line-height:1}
+.stat-delta{font-size:12px;font-weight:600;margin-top:4px}
+.stat-delta.up{color:var(--green)}
+.stat-delta.neutral{color:var(--text3)}
+
+/* ─── LIST ROWS ────────────────────────────────────────── */
+.list-item{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;
+  border-bottom:1px solid var(--border);
+  transition:background 0.12s;
+  position:relative;
+}
+.list-item:last-child{border-bottom:none}
+.list-item:active{background:var(--bg)}
+.list-item-icon{
+  width:44px;height:44px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;font-weight:700;
+}
+.list-item-body{flex:1;min-width:0}
+.list-item-title{font-size:15px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.list-item-sub{font-size:12px;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.list-item-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.list-arrow{color:var(--text3);font-size:14px;margin-left:2px}
+
+/* ─── BADGES ───────────────────────────────────────────── */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:50px;
+  font-size:11px;font-weight:700;letter-spacing:0.01em;
+}
+.badge-green{background:var(--green-light);color:var(--green)}
+.badge-blue{background:var(--blue-light);color:var(--blue)}
+.badge-orange{background:var(--orange-light);color:var(--orange)}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-gray{background:var(--bg);color:var(--text2);border:1px solid var(--border)}
+.badge-dark{background:var(--accent);color:#fff}
+
+/* ─── ACTION BUTTONS ───────────────────────────────────── */
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.action-btn{
+  display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  padding:16px;
+  background:var(--surface);border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);border:1px solid var(--border);
+  transition:transform 0.12s,box-shadow 0.12s;
+  text-align:left;
+}
+.action-btn:active{transform:scale(0.96);box-shadow:var(--shadow-sm)}
+.action-icon{font-size:24px;margin-bottom:4px}
+.action-label{font-size:13px;font-weight:700;color:var(--text)}
+.action-desc{font-size:11px;color:var(--text3)}
+
+/* ─── FULL BUTTONS ─────────────────────────────────────── */
+.btn-full{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:16px;border-radius:var(--radius);
+  font-size:15px;font-weight:700;
+  transition:transform 0.12s,opacity 0.15s;
+}
+.btn-full:active{transform:scale(0.97);opacity:0.85}
+.btn-dark{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(26,26,46,0.25)}
+.btn-light{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.btn-blue{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(0,102,255,0.3)}
+.btn-red{background:var(--red-light);color:var(--red)}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(0,185,107,0.3)}
+
+/* ─── INLINE BUTTONS ───────────────────────────────────── */
+.ibtn{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:7px 14px;border-radius:50px;
+  font-size:13px;font-weight:700;
+  transition:transform 0.1s,opacity 0.1s;
+}
+.ibtn:active{transform:scale(0.93);opacity:0.8}
+.ibtn-dark{background:var(--accent);color:#fff}
+.ibtn-ghost{background:var(--bg);color:var(--text2);border:1px solid var(--border)}
+.ibtn-blue{background:var(--blue);color:#fff}
+.ibtn-green{background:var(--green-light);color:var(--green)}
+.ibtn-red{background:var(--red-light);color:var(--red)}
+.ibtn-orange{background:var(--orange-light);color:var(--orange)}
+
+/* ─── ICON CIRCLE BTN ──────────────────────────────────── */
+.icon-btn{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+  transition:transform 0.1s,background 0.1s;
+  flex-shrink:0;
+}
+.icon-btn:active{transform:scale(0.88)}
+.icon-btn-ghost{background:var(--bg);color:var(--text2);border:1px solid var(--border)}
+.icon-btn-red{background:var(--red-light);color:var(--red)}
+
+/* ─── FORM ELEMENTS ────────────────────────────────────── */
+.form-group{margin-bottom:16px}
+.form-label{
+  display:block;font-size:13px;font-weight:700;color:var(--text2);
+  margin-bottom:7px;letter-spacing:0.01em;
+}
+.form-input{
+  width:100%;
+  background:var(--bg);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:13px 15px;
+  font-size:15px;color:var(--text);
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.form-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,102,255,0.1);background:#fff}
+.form-input::placeholder{color:var(--text3)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+textarea.form-input{resize:none;min-height:90px;line-height:1.5}
+select.form-input{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23AEAEC0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+
+/* ─── SEGMENTED CONTROL ────────────────────────────────── */
+.segmented{
+  display:flex;background:var(--bg);border-radius:var(--radius-sm);
+  padding:3px;gap:2px;margin-bottom:16px;
+}
+.seg-btn{
+  flex:1;padding:8px;border-radius:8px;
+  font-size:13px;font-weight:600;color:var(--text3);
+  background:none;
+  transition:all 0.2s;
+}
+.seg-btn.active{background:#fff;color:var(--text);box-shadow:var(--shadow-sm)}
+
+/* ─── DRAWER / SHEET ───────────────────────────────────── */
+#sheet-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0);
+  transition:background 0.3s;
+  pointer-events:none;
+  display:flex;align-items:flex-end;
+}
+#sheet-overlay.open{background:rgba(0,0,0,0.45);pointer-events:all}
+#sheet{
+  width:100%;max-height:94dvh;
+  background:#fff;
+  border-radius:24px 24px 0 0;
+  box-shadow:var(--shadow-lg);
+  transform:translateY(100%);
+  transition:transform 0.35s cubic-bezier(.32,.72,0,1);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  padding-bottom:var(--safe-b);
+}
+#sheet-overlay.open #sheet{transform:translateY(0)}
+.sheet-handle{
+  width:36px;height:4px;border-radius:2px;background:var(--border2);
+  margin:12px auto 4px;flex-shrink:0;
+}
+.sheet-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:0 20px 20px}
+.sheet-header{padding:8px 20px 16px;flex-shrink:0}
+.sheet-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.4px}
+.sheet-sub{font-size:14px;color:var(--text3);margin-top:3px}
+
+/* ─── TOAST ────────────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);
+  left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--accent);color:#fff;
+  padding:12px 20px;border-radius:50px;
+  font-size:14px;font-weight:700;
+  box-shadow:var(--shadow-lg);
+  white-space:nowrap;
+  opacity:0;transition:opacity 0.2s,transform 0.2s;
+  z-index:300;pointer-events:none;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ─── ALERT BANNER ─────────────────────────────────────── */
+.alert-banner{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;
+  border-radius:var(--radius);
+  margin-bottom:10px;
+  border:1px solid;
+}
+.alert-banner.orange{background:var(--orange-light);border-color:rgba(255,149,0,0.2);color:var(--orange)}
+.alert-banner.red{background:var(--red-light);border-color:rgba(255,59,48,0.2);color:var(--red)}
+.alert-icon{font-size:20px;flex-shrink:0}
+.alert-body{flex:1;min-width:0}
+.alert-title{font-size:14px;font-weight:700}
+.alert-sub{font-size:12px;opacity:0.8;margin-top:1px}
+
+/* ─── PROGRESS ─────────────────────────────────────────── */
+.prog-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;background:var(--blue);transition:width 0.6s cubic-bezier(.4,0,.2,1)}
+
+/* ─── MONTH GRID ───────────────────────────────────────── */
+.month-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}
+.m-btn{
+  padding:10px 4px;border-radius:10px;text-align:center;
+  font-size:12px;font-weight:700;
+  border:1.5px solid var(--border);
+  background:var(--bg);color:var(--text3);
+  transition:all 0.15s;
+}
+.m-btn:active{transform:scale(0.9)}
+.m-btn.paid{background:var(--green-light);border-color:transparent;color:var(--green)}
+.m-btn.overdue{background:var(--orange-light);border-color:transparent;color:var(--orange)}
+.m-btn.future{opacity:0.4}
+
+/* ─── CHECK ITEM ───────────────────────────────────────── */
+.check-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.check-row:last-child{border-bottom:none}
+.checkmark{
+  width:24px;height:24px;border-radius:8px;flex-shrink:0;
+  border:2px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s cubic-bezier(.34,1.56,.64,1);
+  margin-top:1px;
+}
+.checkmark.checked{background:var(--green);border-color:var(--green)}
+.checkmark.checked::after{content:'✓';font-size:13px;font-weight:800;color:#fff}
+.check-body{flex:1;min-width:0}
+.check-title{font-size:14px;font-weight:600;color:var(--text);line-height:1.3}
+.check-title.done{text-decoration:line-through;color:var(--text3)}
+.check-sub{font-size:12px;color:var(--text3);margin-top:2px}
+
+/* ─── SECTION ──────────────────────────────────────────── */
+.section{margin-bottom:20px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px}
+.section-title{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-0.2px}
+.section-link{font-size:13px;font-weight:700;color:var(--blue)}
+
+/* ─── EMPTY ────────────────────────────────────────────── */
+.empty{text-align:center;padding:48px 24px}
+.empty-emoji{font-size:44px;margin-bottom:12px}
+.empty-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px}
+.empty-sub{font-size:14px;color:var(--text3);line-height:1.5;margin-bottom:20px}
+
+/* ─── DIVIDER ──────────────────────────────────────────── */
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+/* ─── DETAIL ROW ───────────────────────────────────────── */
+.detail-row{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.detail-key覆{font-size:13px;color:var(--text2);font-weight:500;width:120px;flex-shrink:0}
+.detail-val{font-size:14px;font-weight:600;color:var(--text);flex:1;word-break:break-word}
+
+/* ─── PAGE ANIMATIONS ──────────────────────────────────── */
+.page-enter{animation:pageEnter 0.25s cubic-bezier(.4,0,.2,1) both}
+@keyframes pageEnter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.item-enter{animation:itemEnter 0.3s cubic-bezier(.4,0,.2,1) both}
+@keyframes itemEnter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── AVATAR ───────────────────────────────────────────── */
+.avatar{
+  width:44px;height:44px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;flex-shrink:0;
+}
+
+/* ─── REMINDER ITEM ────────────────────────────────────── */
+.reminder-card{
+  background:var(--surface);border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);border:1px solid var(--border);
+  padding:14px 16px;margin-bottom:10px;
+  transition:transform 0.12s;
+}
+.reminder-card:active{transform:scale(0.98)}
+.reminder-card.due{border-color:rgba(255,149,0,0.35);background:var(--orange-light)}
+.reminder-card.overdue{border-color:rgba(255,59,48,0.35);background:var(--red-light)}
+
+/* ─── SWIPE DELETE ─────────────────────────────────────── */
+.swipe-container{position:relative;overflow:hidden;border-radius:var(--radius)}
+.swipe-delete-btn{
+  position:absolute;right:0;top:0;bottom:0;width:80px;
+  background:var(--red);color:#fff;font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:0 var(--radius) var(--radius) 0;
+}
+
+/* ─── PILL FILTER ──────────────────────────────────────── */
+.pill-row{display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;scrollbar-width:none}
+.pill-row::-webkit-scrollbar{display:none}
+.pill{
+  padding:7px 14px;border-radius:50px;white-space:nowrap;
+  font-size:13px;font-weight:700;flex-shrink:0;
+  transition:all 0.15s;
+}
+.pill:active{transform:scale(0.92)}
+.pill-active{background:var(--accent);color:#fff}
+.pill-inactive{background:var(--surface);color:var(--text2);border:1px solid var(--border)}
+
+/* ─── SWITCH ───────────────────────────────────────────── */
+.switch-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.switch-row:last-child{border-bottom:none}
+.switch-label{font-size:15px;font-weight:600;color:var(--text)}
+.switch-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.toggle{
+  position:relative;width:50px;height:28px;flex-shrink:0;
+}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{
+  position:absolute;inset:0;border-radius:14px;
+  background:var(--border2);cursor:pointer;
+  transition:background 0.2s;
+}
+.toggle input:checked+.toggle-track{background:var(--green)}
+.toggle-thumb{
+  position:absolute;left:3px;top:3px;
+  width:22px;height:22px;border-radius:50%;
+  background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.2);
+  transition:transform 0.2s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+}
+.toggle input:checked~.toggle-thumb{transform:translateX(22px)}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header id="topbar">
+    <div id="topbar-title">Dashboard</div>
+    <div id="topbar-actions" style="display:flex;gap:8px"></div>
+  </header>
+  <div id="page"><div id="page-inner"></div></div>
+  <nav id="bottom-nav">
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-tab="home" onclick="App.go('home',this)">
+        <span class="ni">🏠</span><span class="nl">Home</span>
+      </button>
+      <button class="nav-tab" data-tab="clients" onclick="App.go('clients',this)">
+        <span class="ni">👥</span><span class="nl">Clients</span>
+        <span class="nav-badge" id="nb-clients" style="display:none"></span>
+      </button>
+      <button class="nav-tab" data-tab="projects" onclick="App.go('projects',this)">
+        <span class="ni">🗂️</span><span class="nl">Projects</span>
+      </button>
+      <button class="nav-tab" data-tab="reminders" onclick="App.go('reminders',this)">
+        <span class="ni">🔔</span><span class="nl">Reminders</span>
+        <span class="nav-badge" id="nb-reminders" style="display:none"></span>
+      </button>
+      <button class="nav-tab" data-tab="revenue" onclick="App.go('revenue',this)">
+        <span class="ni">💰</span><span class="nl">Revenue</span>
+      </button>
+    </div>
+  </nav>
+</div>
+
+<div id="sheet-overlay" onclick="Sheet.close(event)">
+  <div id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><div class="sheet-title" id="sheet-title"></div><div class="sheet-sub" id="sheet-sub"></div></div>
+    <div class="sheet-scroll" id="sheet-body"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════
+const $ = (s,c=document) => c.querySelector(s);
+const $$ = (s,c=document) => [...c.querySelectorAll(s)];
+const uid = () => '_' + Math.random().toString(36).slice(2,10);
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmt = n => { n = parseFloat(n)||0; if(n>=1000) return '$'+(n/1000).toFixed(1)+'k'; return '$'+n.toLocaleString(); };
+const today = () => new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+const todayISO = () => new Date().toISOString().slice(0,10);
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const NOW = new Date();
+const COLORS = ['#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FECA57','#FF9FF3','#54A0FF','#5F27CD','#00D2D3','#FF9500'];
+const avatarColor = name => COLORS[(name||'?').charCodeAt(0)%COLORS.length];
+const initials = name => (name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+
+let toastTimer;
+function toast(msg, dur=2500) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), dur);
+}
+
+// ═══════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════
+const DB = {
+  _k: k => 'vs4_'+k,
+  get: k => { try { return JSON.parse(localStorage.getItem(DB._k(k)))||[] } catch { return [] } },
+  set: (k,v) => { try { localStorage.setItem(DB._k(k), JSON.stringify(v)) } catch {} },
+};
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+const State = {
+  clients:   DB.get('clients'),
+  projects:  DB.get('projects'),
+  revenue:   DB.get('revenue'),
+  reminders: DB.get('reminders'),
+  tasks:     DB.get('tasks'),
+  save: k => DB.set(k, State[k]),
+  saveAll: () => ['clients','projects','revenue','reminders','tasks'].forEach(k=>State.save(k)),
+};
+
+// ═══════════════════════════════════════════════════════
+// SHEET
+// ═══════════════════════════════════════════════════════
+const Sheet = {
+  open(title, sub, bodyHTML) {
+    $('#sheet-title').textContent = title;
+    $('#sheet-sub').textContent = sub||'';
+    $('#sheet-body').innerHTML = bodyHTML;
+    const ov = $('#sheet-overlay');
+    ov.classList.add('open');
+    // Focus first input
+    setTimeout(()=>{ const inp = $('#sheet-body input'); if(inp) inp.focus(); },350);
+  },
+  close(e) {
+    if(e && e.target !== $('#sheet-overlay')) return;
+    $('#sheet-overlay').classList.remove('open');
+  },
+  forceClose() {
+    $('#sheet-overlay').classList.remove('open');
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// REMINDERS ENGINE
+// ═══════════════════════════════════════════════════════
+const ReminderEngine = {
+  isDue(r) {
+    const d = new Date(r.nextDate);
+    const diffDays = (d - NOW) / 86400000;
+    return diffDays <= 3; // due within 3 days or overdue
+  },
+  isOverdue(r) {
+    return new Date(r.nextDate) < NOW;
+  },
+  advance(id) {
+    const r = State.reminders.find(x=>x.id===id);
+    if(!r) return;
+    const d = new Date(r.nextDate);
+    const freq = r.frequency||'monthly';
+    if(freq==='weekly') d.setDate(d.getDate()+7);
+    else if(freq==='monthly') d.setMonth(d.getMonth()+1);
+    else if(freq==='quarterly') d.setMonth(d.getMonth()+3);
+    else if(freq==='yearly') d.setFullYear(d.getFullYear()+1);
+    r.nextDate = d.toISOString().slice(0,10);
+    r.lastPaid = today();
+    r.paidHistory = [...(r.paidHistory||[]), today()];
+    State.save('reminders');
+    App.render();
+    App.updateBadges();
+    toast('✅ Payment marked — next reminder set!');
+  },
+  getDue() { return State.reminders.filter(r=>ReminderEngine.isDue(r)); },
+  requestPermission() {
+    if('Notification' in window && Notification.permission==='default') {
+      Notification.requestPermission();
+    }
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// APP CONTROLLER
+// ═══════════════════════════════════════════════════════
+const App = {
+  tab: 'home',
+  go(tab, el) {
+    this.tab = tab;
+    $$('.nav-tab').forEach(t=>t.classList.remove('active'));
+    if(el) el.classList.add('active');
+    else { const t = $(`.nav-tab[data-tab="${tab}"]`); if(t) t.classList.add('active'); }
+    this.render();
+    this.updateTopbar();
+    this.updateBadges();
+    $('#page').scrollTop = 0;
+  },
+  render() {
+    const pi = $('#page-inner');
+    pi.className = 'page-enter';
+    const pages = {home:Pages.home,clients:Pages.clients,projects:Pages.projects,reminders:Pages.reminders,revenue:Pages.revenue};
+    pi.innerHTML = (pages[this.tab]||Pages.home)();
+  },
+  updateTopbar() {
+    const titles = {home:'Dashboard',clients:'Clients',projects:'Projects',reminders:'Reminders',revenue:'Revenue'};
+    const actions = {
+      home: `<button class="tb-btn tb-btn-secondary" onclick="Forms.revenue()">+ Revenue</button>`,
+      clients: `<button class="tb-btn tb-btn-primary" onclick="Forms.client()">+ Client</button>`,
+      projects: `<button class="tb-btn tb-btn-primary" onclick="Forms.project()">+ Project</button>`,
+      reminders: `<button class="tb-btn tb-btn-primary" onclick="Forms.reminder()">+ Reminder</button>`,
+      revenue: `<button class="tb-btn tb-btn-primary" onclick="Forms.revenue()">+ Log</button>`,
+    };
+    $('#topbar-title').textContent = titles[this.tab]||'';
+    $('#topbar-actions').innerHTML = actions[this.tab]||'';
+  },
+  updateBadges() {
+    const due = ReminderEngine.getDue().length;
+    const nb_r = $('#nb-reminders');
+    const nb_c = $('#nb-clients');
+    nb_r.textContent = due;
+    nb_r.style.display = due>0 ? '' : 'none';
+    nb_c.textContent = State.clients.length;
+    nb_c.style.display = State.clients.length>0 ? '' : 'none';
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// PAGES
+// ═══════════════════════════════════════════════════════
+const Pages = {
+
+  // ── HOME ──────────────────────────────────────────────
+  home() {
+    const totalRev = State.revenue.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+    const mrr = State.clients.reduce((s,c)=>s+(parseFloat(c.monthlyFee)||0),0);
+    const activeProjects = State.projects.filter(p=>p.status!=='done').length;
+    const due = ReminderEngine.getDue();
+    const openTasks = State.tasks.filter(t=>!t.done);
+
+    let html = '';
+
+    // Stats
+    html += `<div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:#EBF2FF"><span style="font-size:22px">💰</span></div>
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value">${fmt(totalRev)}</div>
+        <div class="stat-delta neutral">${State.revenue.length} payments</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:#E6F9F1"><span style="font-size:22px">🔄</span></div>
+        <div class="stat-label">Monthly Recurring</div>
+        <div class="stat-value">${fmt(mrr)}</div>
+        <div class="stat-delta up">↑ active MRR</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:#FFF5E6"><span style="font-size:22px">🗂️</span></div>
+        <div class="stat-label">Active Projects</div>
+        <div class="stat-value">${activeProjects}</div>
+        <div class="stat-delta neutral">${State.projects.length} total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:#F5F0FF"><span style="font-size:22px">👥</span></div>
+        <div class="stat-label">Clients</div>
+        <div class="stat-value">${State.clients.length}</div>
+        <div class="stat-delta up">${State.clients.filter(c=>c.status==='active').length} active</div>
+      </div>
+    </div>`;
+
+    // Due reminders alert
+    if(due.length > 0) {
+      html += `<div class="section"><div class="section-head"><div class="section-title">⚠️ Action Needed</div></div>`;
+      due.slice(0,3).forEach(r => {
+        const over = ReminderEngine.isOverdue(r);
+        html += `<div class="alert-banner ${over?'red':'orange'}">
+          <span class="alert-icon">${over?'🚨':'⏰'}</span>
+          <div class="alert-body">
+            <div class="alert-title">${esc(r.clientName)} — ${fmt(r.amount)}</div>
+            <div class="alert-sub">${r.frequency} payment · ${over?'Overdue':'Due soon'}</div>
+          </div>
+          <button class="ibtn ibtn-dark" onclick="ReminderEngine.advance('${r.id}')">Paid ✓</button>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    // Quick actions
+    html += `<div class="section">
+      <div class="section-head"><div class="section-title">Quick Add</div></div>
+      <div class="action-grid">
+        <button class="action-btn" onclick="Forms.client()"><span class="action-icon">👤</span><span class="action-label">New Client</span><span class="action-desc">Add contact & billing</span></button>
+        <button class="action-btn" onclick="Forms.project()"><span class="action-icon">🚀</span><span class="action-label">New Project</span><span class="action-desc">Track your work</span></button>
+        <button class="action-btn" onclick="Forms.revenue()"><span class="action-icon">💵</span><span class="action-label">Log Payment</span><span class="action-desc">Record revenue</span></button>
+        <button class="action-btn" onclick="Forms.reminder()"><span class="action-icon">🔔</span><span class="action-label">Set Reminder</span><span class="action-desc">Payment alert</span></button>
+      </div>
+    </div>`;
+
+    // Recent clients
+    if(State.clients.length > 0) {
+      html += `<div class="section"><div class="section-head"><div class="section-title">Recent Clients</div><span class="section-link" onclick="App.go('clients')">See all</span></div>
+      <div class="card">`;
+      State.clients.slice(0,4).forEach(c => {
+        html += `<div class="list-item" onclick="Pages.clientDetail('${c.id}')">
+          <div class="avatar" style="background:${avatarColor(c.name)}22;color:${avatarColor(c.name)}">${initials(c.name)}</div>
+          <div class="list-item-body">
+            <div class="list-item-title">${esc(c.name)}</div>
+            <div class="list-item-sub">${esc(c.website||c.phone||'No contact')}</div>
+          </div>
+          <div class="list-item-right">
+            ${c.monthlyFee>0?`<span style="font-size:13px;font-weight:700;color:var(--green)">${fmt(c.monthlyFee)}/mo</span>`:''}
+            <span class="badge badge-${c.status==='active'?'green':c.status==='lead'?'blue':'gray'}">${c.status||'active'}</span>
+          </div>
+          <span class="list-arrow">›</span>
+        </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    // Open tasks
+    if(openTasks.length > 0) {
+      html += `<div class="section"><div class="section-head"><div class="section-title">Open Tasks</div><span class="section-link" onclick="App.go('projects')">All</span></div>
+      <div class="card card-body">`;
+      openTasks.slice(0,5).forEach(t => {
+        html += `<div class="check-row">
+          <div class="checkmark ${t.done?'checked':''}" onclick="Actions.toggleTask('${t.id}')"></div>
+          <div class="check-body">
+            <div class="check-title ${t.done?'done':''}">${esc(t.title)}</div>
+            <div class="check-sub">${esc(t.project||'General')}${t.due?' · Due '+t.due:''}</div>
+          </div>
+        </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    return html;
+  },
+
+  // ── CLIENTS ───────────────────────────────────────────
+  clients() {
+    let html = `<div class="pill-row" id="client-filter">
+      <button class="pill pill-active" onclick="Pages.filterClients('all',this)">All (${State.clients.length})</button>
+      <button class="pill pill-inactive" onclick="Pages.filterClients('active',this)">Active</button>
+      <button class="pill pill-inactive" onclick="Pages.filterClients('lead',this)">Leads</button>
+      <button class="pill pill-inactive" onclick="Pages.filterClients('inactive',this)">Inactive</button>
+    </div>`;
+
+    if(State.clients.length === 0) {
+      return html + `<div class="empty">
+        <div class="empty-emoji">👥</div>
+        <div class="empty-title">No clients yet</div>
+        <div class="empty-sub">Add your first client to start tracking payments, projects, and contact info.</div>
+        <button class="btn-full btn-dark" onclick="Forms.client()">+ Add First Client</button>
+      </div>`;
+    }
+
+    html += `<div class="card" id="clients-list">`;
+    State.clients.forEach(c => { html += Pages._clientRow(c); });
+    html += `</div>`;
+    return html;
+  },
+
+  _clientRow(c) {
+    const mrr = State.reminders.filter(r=>r.clientName===c.name);
+    return `<div class="list-item" onclick="Pages.clientDetail('${c.id}')">
+      <div class="avatar" style="background:${avatarColor(c.name)}22;color:${avatarColor(c.name)}">${initials(c.name)}</div>
+      <div class="list-item-body">
+        <div class="list-item-title">${esc(c.name)}</div>
+        <div class="list-item-sub">${esc(c.phone||c.email||c.website||'No contact info')}</div>
+      </div>
+      <div class="list-item-right">
+        ${c.monthlyFee>0?`<span style="font-size:12px;font-weight:700;color:var(--green)">${fmt(c.monthlyFee)}/mo</span>`:''}
+        <span class="badge badge-${c.status==='active'?'green':c.status==='lead'?'blue':'gray'}">${c.status||'active'}</span>
+      </div>
+      <span class="list-arrow">›</span>
+    </div>`;
+  },
+
+  filterClients(filter, el) {
+    $$('#client-filter .pill').forEach(p=>{ p.className='pill pill-inactive'; });
+    el.className = 'pill pill-active';
+    const list = $('#clients-list');
+    if(!list) return;
+    const filtered = filter==='all' ? State.clients : State.clients.filter(c=>(c.status||'active')===filter);
+    list.innerHTML = filtered.length > 0 ? filtered.map(c=>Pages._clientRow(c)).join('') : `<div style="padding:24px;text-align:center;color:var(--text3);font-size:14px">No ${filter} clients</div>`;
+  },
+
+  clientDetail(id) {
+    const c = State.clients.find(x=>x.id===id);
+    if(!c) return;
+    const reminders = State.reminders.filter(r=>r.clientName===c.name);
+    const projects = State.projects.filter(p=>p.client===id||p.clientName===c.name);
+    const totalPaid = State.revenue.filter(r=>r.clientId===id).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+
+    const html = `
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+        <div class="avatar" style="width:64px;height:64px;border-radius:20px;font-size:22px;background:${avatarColor(c.name)}22;color:${avatarColor(c.name)}">${initials(c.name)}</div>
+        <div style="flex:1">
+          <div style="font-size:22px;font-weight:800;letter-spacing:-0.4px">${esc(c.name)}</div>
+          <span class="badge badge-${c.status==='active'?'green':c.status==='lead'?'blue':'gray'}" style="margin-top:4px">${c.status||'active'}</span>
+        </div>
+      </div>
+
+      ${c.phone||c.email||c.website||c.payment||c.monthlyFee||c.notes ? `
+      <div class="card card-body" style="margin-bottom:14px">
+        ${c.phone?`<div class="detail-row"><div class="detail-key">📱 Phone</div><div class="detail-val"><a href="tel:${esc(c.phone)}" style="color:var(--blue)">${esc(c.phone)}</a></div></div>`:''}
+        ${c.email?`<div class="detail-row"><div class="detail-key">✉️ Email</div><div class="detail-val"><a href="mailto:${esc(c.email)}" style="color:var(--blue);word-break:break-all">${esc(c.email)}</a></div></div>`:''}
+        ${c.website?`<div class="detail-row"><div class="detail-key">🌐 Website</div><div class="detail-val"><a href="${esc(c.website)}" target="_blank" style="color:var(--blue)">${esc(c.website.replace(/https?:\/\//,''))}</a></div></div>`:''}
+        ${c.payment>0?`<div class="detail-row"><div class="detail-key">💵 Project Fee</div><div class="detail-val" style="color:var(--green)">${fmt(c.payment)}</div></div>`:''}
+        ${c.monthlyFee>0?`<div class="detail-row"><div class="detail-key">🔄 Monthly</div><div class="detail-val" style="color:var(--green)">${fmt(c.monthlyFee)}/month</div></div>`:''}
+        ${totalPaid>0?`<div class="detail-row"><div class="detail-key">💰 Total Paid</div><div class="detail-val" style="font-weight:800;color:var(--green)">${fmt(totalPaid)}</div></div>`:''}
+        ${c.notes?`<div class="detail-row"><div class="detail-key">📝 Notes</div><div class="detail-val">${esc(c.notes)}</div></div>`:''}
+      </div>`:''}
+
+      ${c.monthlyFee>0 && reminders.length>0 ? `
+      <div style="margin-bottom:14px">
+        <div class="section-head"><div class="section-title" style="font-size:15px">Payment Tracking</div></div>
+        ${reminders.map(r => {
+          const paid = r.paidHistory||[];
+          return `<div style="background:var(--bg);border-radius:12px;padding:14px;border:1px solid var(--border)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <span style="font-size:13px;font-weight:700;color:var(--text2)">${fmt(r.amount)} · ${r.frequency}</span>
+              <span class="badge badge-${ReminderEngine.isDue(r)?'orange':'green'}">${ReminderEngine.isDue(r)?'Due now':'Up to date'}</span>
+            </div>
+            <div class="month-grid">${MONTHS.map((m,i)=>{
+              const key=m+'_'+(new Date().getFullYear());
+              const isPaid=paid.some(p=>p.includes(m));
+              const isPast = i <= NOW.getMonth();
+              return `<button class="m-btn ${isPaid?'paid':isPast?'overdue':'future'}" onclick="ReminderEngine.advance('${r.id}')">${m}</button>`;
+            }).join('')}</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:8px">Next due: ${new Date(r.nextDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>
+          </div>`;
+        }).join('')}
+      </div>`:''}
+
+      ${projects.length>0?`
+      <div style="margin-bottom:14px">
+        <div class="section-head"><div class="section-title" style="font-size:15px">Projects (${projects.length})</div></div>
+        <div class="card">
+          ${projects.map(p=>`<div class="list-item">
+            <div class="list-item-body">
+              <div class="list-item-title">${esc(p.name)}</div>
+              <div class="list-item-sub">${p.revenue>0?fmt(p.revenue):''}</div>
+            </div>
+            <span class="badge badge-${p.status==='done'?'green':p.status==='paused'?'orange':'blue'}">${p.status||'active'}</span>
+          </div>`).join('')}
+        </div>
+      </div>`:''}
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn-full btn-dark" onclick="Sheet.forceClose();Forms.client('${id}')">✏️ Edit Client</button>
+        ${c.monthlyFee>0?`<button class="btn-full btn-blue" onclick="Sheet.forceClose();Forms.reminder(null,'${esc(c.name)}',${c.monthlyFee})">🔔 Set Payment Reminder</button>`:''}
+        <button class="btn-full btn-light" onclick="Sheet.forceClose();Forms.revenue(null,'${id}','${esc(c.name)}')">💵 Log Payment</button>
+        <button class="btn-full btn-red" onclick="Actions.deleteClient('${id}')">🗑 Remove Client</button>
+      </div>`;
+
+    Sheet.open(c.name, c.website||c.email||'Client details', html);
+  },
+
+  // ── PROJECTS ──────────────────────────────────────────
+  projects() {
+    const active = State.projects.filter(p=>p.status!=='done');
+    const done = State.projects.filter(p=>p.status==='done');
+
+    let html = `<div class="segmented" id="proj-seg">
+      <button class="seg-btn active" onclick="Pages.projSeg('active',this)">Active (${active.length})</button>
+      <button class="seg-btn" onclick="Pages.projSeg('done',this)">Done (${done.length})</button>
+      <button class="seg-btn" onclick="Pages.projSeg('tasks',this)">Tasks (${State.tasks.filter(t=>!t.done).length})</button>
+    </div>
+    <div id="proj-content">`;
+    html += Pages._projActive(active);
+    html += `</div>`;
+    return html;
+  },
+
+  projSeg(mode, el) {
+    $$('#proj-seg .seg-btn').forEach(b=>b.classList.remove('active'));
+    el.classList.add('active');
+    const cnt = $('#proj-content');
+    if(!cnt) return;
+    const active = State.projects.filter(p=>p.status!=='done');
+    const done = State.projects.filter(p=>p.status==='done');
+    if(mode==='active') cnt.innerHTML = Pages._projActive(active);
+    else if(mode==='done') cnt.innerHTML = Pages._projDone(done);
+    else if(mode==='tasks') cnt.innerHTML = Pages._tasks();
+  },
+
+  _projActive(projects) {
+    if(projects.length===0) return `<div class="empty"><div class="empty-emoji">🚀</div><div class="empty-title">No active projects</div><div class="empty-sub">Start tracking your vibe coding work.</div><button class="btn-full btn-dark" onclick="Forms.project()">+ New Project</button></div>`;
+    return projects.map(p => Pages._projCard(p)).join('');
+  },
+
+  _projDone(projects) {
+    if(projects.length===0) return `<div class="empty"><div class="empty-emoji">🎉</div><div class="empty-title">No completed projects</div><div class="empty-sub">Mark projects as done when you finish.</div></div>`;
+    return projects.map(p => Pages._projCard(p, true)).join('');
+  },
+
+  _projCard(p, muted=false) {
+    const tasks = State.tasks.filter(t=>t.projectId===p.id);
+    const doneT = tasks.filter(t=>t.done).length;
+    const pct = tasks.length ? Math.round(doneT/tasks.length*100) : null;
+    const client = State.clients.find(c=>c.id===p.clientId);
+    return `<div class="card card-body" style="margin-bottom:10px;${muted?'opacity:0.7':''}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
+        <div style="flex:1">
+          <div style="font-size:16px;font-weight:800;color:var(--text);letter-spacing:-0.2px">${esc(p.name)}</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:2px">${client?esc(client.name):esc(p.clientName||'')}${p.revenue>0?' · '+fmt(p.revenue):''}${p.monthlyFee>0?' · '+fmt(p.monthlyFee)+'/mo':''}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="badge badge-${p.status==='done'?'green':p.status==='paused'?'orange':'blue'}">${p.status||'active'}</span>
+          <button class="icon-btn icon-btn-ghost" onclick="Forms.project('${p.id}')">✏️</button>
+        </div>
+      </div>
+      ${pct!==null?`<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:5px"><span>${doneT}/${tasks.length} tasks</span><span>${pct}%</span></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+      </div>`:''}
+      ${p.notes?`<div style="font-size:13px;color:var(--text2);background:var(--bg);padding:10px 12px;border-radius:10px;line-height:1.5;margin-bottom:10px">${esc(p.notes)}</div>`:''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${p.status!=='done'?`<button class="ibtn ibtn-green" onclick="Actions.completeProject('${p.id}')">✓ Mark Done</button>`:''}
+        ${p.status!=='done'?`<button class="ibtn ibtn-ghost" onclick="Pages.addTask('${p.id}','${esc(p.name)}')">+ Task</button>`:''}
+        <button class="ibtn ibtn-ghost" onclick="Actions.deleteProject('${p.id}')">🗑</button>
+      </div>
+    </div>`;
+  },
+
+  _tasks() {
+    const openTasks = State.tasks.filter(t=>!t.done);
+    const doneTasks = State.tasks.filter(t=>t.done);
+    let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:14px;color:var(--text2);font-weight:600">${openTasks.length} open · ${doneTasks.length} done</div>
+      <button class="ibtn ibtn-dark" onclick="Forms.task()">+ Task</button>
+    </div>`;
+    if(State.tasks.length===0) return html+`<div class="empty"><div class="empty-emoji">✅</div><div class="empty-title">No tasks yet</div><div class="empty-sub">Add tasks to track your work.</div></div>`;
+    html += `<div class="card card-body">`;
+    State.tasks.forEach(t => {
+      html += `<div class="check-row">
+        <div class="checkmark ${t.done?'checked':''}" onclick="Actions.toggleTask('${t.id}')"></div>
+        <div class="check-body" style="flex:1">
+          <div class="check-title ${t.done?'done':''}">${esc(t.title)}</div>
+          <div class="check-sub">${esc(t.project||'General')}${t.due?' · Due '+t.due:''}</div>
+        </div>
+        <button class="icon-btn icon-btn-ghost" onclick="Actions.deleteTask('${t.id}')" style="margin-left:8px">×</button>
+      </div>`;
+    });
+    html += `</div>`;
+    return html;
+  },
+
+  addTask(projectId, projectName) {
+    Forms.task(projectId, projectName);
+  },
+
+  // ── REMINDERS ─────────────────────────────────────────
+  reminders() {
+    const due = ReminderEngine.getDue();
+    const upcoming = State.reminders.filter(r=>!ReminderEngine.isDue(r));
+
+    let html = '';
+
+    if(State.reminders.length===0) return `<div class="empty">
+      <div class="empty-emoji">🔔</div>
+      <div class="empty-title">No reminders set</div>
+      <div class="empty-sub">Set up recurring payment reminders for your clients and never miss a collection.</div>
+      <button class="btn-full btn-dark" onclick="Forms.reminder()">+ Set First Reminder</button>
+    </div>`;
+
+    if(due.length>0) {
+      html += `<div class="section-head"><div class="section-title">Action Required</div></div>`;
+      due.forEach(r => {
+        html += `<div class="reminder-card ${ReminderEngine.isOverdue(r)?'overdue':'due'}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+            <div>
+              <div style="font-size:16px;font-weight:800;color:var(--text)">${esc(r.clientName)}</div>
+              <div style="font-size:13px;color:var(--text2);margin-top:2px">${fmt(r.amount)} · ${r.frequency}</div>
+            </div>
+            <span class="badge badge-${ReminderEngine.isOverdue(r)?'red':'orange'}">${ReminderEngine.isOverdue(r)?'Overdue':'Due now'}</span>
+          </div>
+          ${r.notes?`<div style="font-size:13px;color:var(--text2);margin-bottom:10px">${esc(r.notes)}</div>`:''}
+          <div style="display:flex;gap:8px">
+            <button class="ibtn ibtn-dark" style="flex:1;justify-content:center" onclick="ReminderEngine.advance('${r.id}')">✓ Mark as Paid</button>
+            <button class="ibtn ibtn-ghost" onclick="Forms.reminder('${r.id}')">✏️</button>
+            <button class="ibtn ibtn-ghost" onclick="Actions.deleteReminder('${r.id}')">🗑</button>
+          </div>
+        </div>`;
+      });
+      if(upcoming.length>0) html += `<div class="divider"></div>`;
+    }
+
+    if(upcoming.length>0) {
+      html += `<div class="section-head"><div class="section-title">Upcoming</div></div>`;
+      upcoming.forEach(r => {
+        const nextDate = new Date(r.nextDate);
+        const daysUntil = Math.ceil((nextDate-NOW)/86400000);
+        html += `<div class="reminder-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--text)">${esc(r.clientName)}</div>
+              <div style="font-size:13px;color:var(--text2);margin-top:1px">${fmt(r.amount)} · ${r.frequency}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:13px;font-weight:700;color:var(--text2)">in ${daysUntil}d</div>
+              <div style="font-size:11px;color:var(--text3)">${nextDate.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
+            </div>
+          </div>
+          ${r.lastPaid?`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">Last paid: ${r.lastPaid}</div>`:''}
+          <div style="display:flex;gap:8px">
+            <button class="ibtn ibtn-ghost" onclick="Forms.reminder('${r.id}')">✏️ Edit</button>
+            <button class="ibtn ibtn-green" onclick="ReminderEngine.advance('${r.id}')">Paid early ✓</button>
+            <button class="ibtn ibtn-ghost" onclick="Actions.deleteReminder('${r.id}')">🗑</button>
+          </div>
+        </div>`;
+      });
+    }
+
+    return html;
+  },
+
+  // ── REVENUE ───────────────────────────────────────────
+  revenue() {
+    const total = State.revenue.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+    const thisMonth = State.revenue.filter(r=>{
+      const d=new Date(r._ts||0); return d.getMonth()===NOW.getMonth()&&d.getFullYear()===NOW.getFullYear();
+    }).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+    const mrr = State.clients.reduce((s,c)=>s+(parseFloat(c.monthlyFee)||0),0);
+
+    let html = `<div class="stats-row" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:16px">
+      <div class="stat-card"><div class="stat-label">All Time</div><div class="stat-value" style="font-size:20px">${fmt(total)}</div></div>
+      <div class="stat-card"><div class="stat-label">This Month</div><div class="stat-value" style="font-size:20px">${fmt(thisMonth)}</div></div>
+      <div class="stat-card"><div class="stat-label">MRR</div><div class="stat-value" style="font-size:20px">${fmt(mrr)}</div></div>
+    </div>`;
+
+    if(State.revenue.length===0) return html+`<div class="empty"><div class="empty-emoji">💰</div><div class="empty-title">No revenue logged</div><div class="empty-sub">Start logging payments to track your earnings.</div><button class="btn-full btn-green" onclick="Forms.revenue()">+ Log First Payment</button></div>`;
+
+    html += `<div class="section-head"><div class="section-title">Payment History</div></div>`;
+    html += `<div class="card">`;
+    State.revenue.forEach(r => {
+      html += `<div class="list-item">
+        <div class="list-item-icon" style="background:var(--green-light);font-size:18px">💵</div>
+        <div class="list-item-body">
+          <div class="list-item-title">${esc(r.label||'Payment')}</div>
+          <div class="list-item-sub">${esc(r.clientName||'')}${r.date?' · '+r.date:''}</div>
+        </div>
+        <div class="list-item-right">
+          <span style="font-size:16px;font-weight:800;color:var(--green)">+${fmt(r.amount)}</span>
+        </div>
+        <button class="icon-btn icon-btn-ghost" onclick="Actions.deleteRevenue('${r.id}')" style="margin-left:4px">×</button>
+      </div>`;
+    });
+    html += `</div>`;
+    return html;
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// FORMS (Sheets)
+// ═══════════════════════════════════════════════════════
+const Forms = {
+
+  client(editId) {
+    const e = editId ? State.clients.find(x=>x.id===editId) : {};
+    const isEdit = !!editId;
+    const clientOptions = State.clients.map(c=>`<option value="${esc(c.id)}" ${c.id===editId?'selected':''}>${esc(c.name)}</option>`).join('');
+
+    Sheet.open(isEdit?'Edit Client':'New Client', isEdit?'Update client information':'Add a new client', `
+      <div class="form-group"><label class="form-label">Full Name / Company *</label>
+        <input class="form-input" id="f-name" placeholder="e.g. Acme Digital" value="${esc(e.name||'')}"></div>
+      <div class="form-group"><label class="form-label">Phone Number</label>
+        <input class="form-input" id="f-phone" type="tel" placeholder="+44 7700 000000" value="${esc(e.phone||'')}"></div>
+      <div class="form-group"><label class="form-label">Email Address</label>
+        <input class="form-input" id="f-email" type="email" placeholder="hello@client.com" value="${esc(e.email||'')}"></div>
+      <div class="form-group"><label class="form-label">Website</label>
+        <input class="form-input" id="f-website" placeholder="https://client.com" value="${esc(e.website||'')}"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Project Fee ($)</label>
+          <input class="form-input" id="f-payment" type="number" placeholder="0" value="${e.payment||''}"></div>
+        <div class="form-group"><label class="form-label">Monthly Fee ($)</label>
+          <input class="form-input" id="f-monthly" type="number" placeholder="0" value="${e.monthlyFee||''}"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select class="form-input" id="f-status">
+          <option value="active" ${(e.status||'active')==='active'?'selected':''}>Active</option>
+          <option value="lead" ${e.status==='lead'?'selected':''}>Lead</option>
+          <option value="inactive" ${e.status==='inactive'?'selected':''}>Inactive</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Notes</label>
+        <textarea class="form-input" id="f-notes" placeholder="Any notes about this client...">${esc(e.notes||'')}</textarea></div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+        <button class="btn-full btn-dark" onclick="Actions.saveClient('${editId||''}')">
+          ${isEdit?'💾 Save Changes':'➕ Add Client'}
+        </button>
+        <button class="btn-full btn-light" onclick="Sheet.forceClose()">Cancel</button>
+      </div>
+    `);
+  },
+
+  project(editId) {
+    const e = editId ? State.projects.find(x=>x.id===editId) : {};
+    const isEdit = !!editId;
+    const clientOptions = State.clients.map(c=>`<option value="${esc(c.id)}" ${c.id===e.clientId?'selected':''}>${esc(c.name)}</option>`).join('');
+
+    Sheet.open(isEdit?'Edit Project':'New Project', 'Track your work and earnings', `
+      <div class="form-group"><label class="form-label">Project Name *</label>
+        <input class="form-input" id="f-name" placeholder="e.g. Brand website redesign" value="${esc(e.name||'')}"></div>
+      <div class="form-group"><label class="form-label">Client</label>
+        <select class="form-input" id="f-status">
+          <option value="">No client</option>${clientOptions}
+        </select></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Project Revenue ($)</label>
+          <input class="form-input" id="f-revenue" type="number" placeholder="0" value="${e.revenue||''}"></div>
+        <div class="form-group"><label class="form-label">Monthly Fee ($)</label>
+          <input class="form-input" id="f-monthly" type="number" placeholder="0" value="${e.monthlyFee||''}"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select class="form-input" id="f-status">
+          <option value="active" ${(!e.status||e.status==='active')?'selected':''}>Active</option>
+          <option value="paused" ${e.status==='paused'?'selected':''}>Paused</option>
+          <option value="done" ${e.status==='done'?'selected':''}>Completed</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">Notes / Description</label>
+        <textarea class="form-input" id="f-notes" placeholder="Project details, links, requirements...">${esc(e.notes||'')}</textarea></div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+        <button class="btn-full btn-dark" onclick="Actions.saveProject('${editId||''}')">
+          ${isEdit?'💾 Save Changes':'🚀 Add Project'}
+        </button>
+        <button class="btn-full btn-light" onclick="Sheet.forceClose()">Cancel</button>
+      </div>
+    `);
+  },
+
+  reminder(editId, prefillClient='', prefillAmount=0) {
+    const e = editId ? State.reminders.find(x=>x.id===editId) : {};
+    const isEdit = !!editId;
+    const nextDef = e.nextDate ? e.nextDate.slice(0,10) : (() => { const d=new Date(); d.setMonth(d.getMonth()+1); return d.toISOString().slice(0,10); })();
+    const clientOptions = State.clients.map(c=>`<option value="${esc(c.name)}" ${(e.clientName||prefillClient)===c.name?'selected':''}>${esc(c.name)}</option>`).join('');
+
+    Sheet.open(isEdit?'Edit Reminder':'New Reminder', 'Set up a recurring payment reminder', `
+      <div class="form-group"><label class="form-label">Client *</label>
+        <select class="form-input" id="f-client">
+          <option value="">Select a client</option>${clientOptions}
+          <option value="__custom" ${!State.clients.find(c=>c.name===(e.clientName||prefillClient))&&(e.clientName||prefillClient)?'selected':''}>Custom name</option>
+        </select></div>
+      <div class="form-group" id="f-custom-wrap" style="display:none"><label class="form-label">Custom Client Name</label>
+        <input class="form-input" id="f-custom" placeholder="Client name" value="${esc(e.clientName||prefillClient||'')}"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Amount ($) *</label>
+          <input class="form-input" id="f-amount" type="number" placeholder="0" value="${e.amount||prefillAmount||''}"></div>
+        <div class="form-group"><label class="form-label">Frequency</label>
+          <select class="form-input" id="f-freq">
+            <option value="weekly" ${e.frequency==='weekly'?'selected':''}>Weekly</option>
+            <option value="monthly" ${(!e.frequency||e.frequency==='monthly')?'selected':''}>Monthly</option>
+            <option value="quarterly" ${e.frequency==='quarterly'?'selected':''}>Quarterly</option>
+            <option value="yearly" ${e.frequency==='yearly'?'selected':''}>Yearly</option>
+          </select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Next Due Date</label>
+        <input class="form-input" id="f-date" type="date" value="${nextDef}"></div>
+      <div class="form-group"><label class="form-label">Notes (optional)</label>
+        <input class="form-input" id="f-notes" placeholder="e.g. Hosting fee, retainer..." value="${esc(e.notes||'')}"></div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+        <button class="btn-full btn-dark" onclick="Actions.saveReminder('${editId||''}')">
+          🔔 ${isEdit?'Save Changes':'Set Reminder'}
+        </button>
+        <button class="btn-full btn-light" onclick="Sheet.forceClose()">Cancel</button>
+      </div>
+    `);
+
+    // Handle custom toggle
+    setTimeout(() => {
+      const sel = $('#sheet-body #f-client');
+      const wrap = $('#sheet-body #f-custom-wrap');
+      if(sel && wrap) {
+        if(sel.value==='__custom') wrap.style.display='';
+        sel.addEventListener('change', () => {
+          wrap.style.display = sel.value==='__custom' ? '' : 'none';
+        });
+      }
+    }, 100);
+  },
+
+  revenue(editId, clientId, clientName) {
+    const clientOptions = State.clients.map(c=>`<option value="${c.id}|${esc(c.name)}" ${c.id===clientId?'selected':''}>${esc(c.name)}</option>`).join('');
+
+    Sheet.open('Log Revenue', 'Record a payment received', `
+      <div class="form-group"><label class="form-label">Amount ($) *</label>
+        <input class="form-input" id="f-amount" type="number" placeholder="0" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">Description</label>
+        <input class="form-input" id="f-label" placeholder="e.g. Monthly retainer, Invoice #42" value="${esc(clientName?clientName+' payment':'')}"></div>
+      <div class="form-group"><label class="form-label">Client</label>
+        <select class="form-input" id="f-client">
+          <option value="">No client</option>${clientOptions}
+        </select></div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+        <button class="btn-full btn-green" onclick="Actions.saveRevenue()">💰 Log Payment</button>
+        <button class="btn-full btn-light" onclick="Sheet.forceClose()">Cancel</button>
+      </div>
+    `);
+  },
+
+  task(projectId, projectName) {
+    const projectOptions = State.projects.filter(p=>p.status!=='done').map(p=>`<option value="${p.id}|${esc(p.name)}" ${p.id===projectId?'selected':''}>${esc(p.name)}</option>`).join('');
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+    const tomISO = tomorrow.toISOString().slice(0,10);
+
+    Sheet.open('Add Task', 'Add to your to-do list', `
+      <div class="form-group"><label class="form-label">Task *</label>
+        <input class="form-input" id="f-title" placeholder="e.g. Send proposal to client"></div>
+      <div class="form-group"><label class="form-label">Project</label>
+        <select class="form-input" id="f-project">
+          <option value="">General / No project</option>${projectOptions}
+        </select></div>
+      <div class="form-group"><label class="form-label">Due Date</label>
+        <input class="form-input" id="f-due" type="date" value="${tomISO}"></div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+        <button class="btn-full btn-dark" onclick="Actions.saveTask()">✅ Add Task</button>
+        <button class="btn-full btn-light" onclick="Sheet.forceClose()">Cancel</button>
+      </div>
+    `);
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════
+const Actions = {
+  saveClient(editId) {
+    const name = ($('#sheet-body #f-name')||{}).value?.trim();
+    if(!name) { toast('⚠️ Client name is required'); return; }
+    const data = {
+      name,
+      phone: ($('#sheet-body #f-phone')||{}).value?.trim()||'',
+      email: ($('#sheet-body #f-email')||{}).value?.trim()||'',
+      website: ($('#sheet-body #f-website')||{}).value?.trim()||'',
+      payment: parseFloat(($('#sheet-body #f-payment')||{}).value)||0,
+      monthlyFee: parseFloat(($('#sheet-body #f-monthly')||{}).value)||0,
+      status: ($('#sheet-body #f-status')||{}).value||'active',
+      notes: ($('#sheet-body #f-notes')||{}).value?.trim()||'',
+    };
+    if(editId) {
+      const idx = State.clients.findIndex(x=>x.id===editId);
+      if(idx>-1) State.clients[idx] = {...State.clients[idx],...data};
+    } else {
+      const newClient = {id:uid(),...data};
+      State.clients.unshift(newClient);
+      // Auto-create reminder if monthly fee
+      if(data.monthlyFee>0) {
+        const nextDate = new Date(); nextDate.setMonth(nextDate.getMonth()+1);
+        State.reminders.unshift({id:uid(),clientName:name,amount:data.monthlyFee,frequency:'monthly',nextDate:nextDate.toISOString().slice(0,10),notes:'Monthly fee',paidHistory:[]});
+        State.save('reminders');
+        toast('🔔 Reminder auto-created for monthly fee!', 3000);
+      }
+    }
+    State.save('clients');
+    Sheet.forceClose();
+    App.render(); App.updateBadges();
+    if(!editId) toast('✅ Client added!');
+    else toast('✅ Client updated!');
+  },
+
+  saveProject(editId) {
+    const name = ($('#sheet-body #f-name')||{}).value?.trim();
+    if(!name) { toast('⚠️ Project name is required'); return; }
+    const clientSel = ($('#sheet-body #f-client')||{}).value||'';
+    const client = State.clients.find(c=>c.id===clientSel);
+    const revenue = parseFloat(($('#sheet-body #f-revenue')||{}).value)||0;
+    const data = {
+      name,
+      clientId: clientSel,
+      clientName: client?client.name:'',
+      revenue,
+      monthlyFee: parseFloat(($('#sheet-body #f-monthly')||{}).value)||0,
+      status: ($('#sheet-body #f-status')||{}).value||'active',
+      notes: ($('#sheet-body #f-notes')||{}).value?.trim()||'',
+    };
+    if(editId) {
+      const idx = State.projects.findIndex(x=>x.id===editId);
+      if(idx>-1) State.projects[idx] = {...State.projects[idx],...data};
+    } else {
+      State.projects.unshift({id:uid(),date:today(),...data});
+      if(revenue>0) {
+        State.revenue.unshift({id:uid(),amount:revenue,label:name,clientId:clientSel,clientName:client?client.name:'',date:today(),_ts:Date.now()});
+        State.save('revenue');
+      }
+    }
+    State.save('projects');
+    Sheet.forceClose();
+    App.render(); App.updateBadges();
+    toast(editId?'✅ Project updated!':'🚀 Project added!');
+  },
+
+  saveReminder(editId) {
+    const sel = ($('#sheet-body #f-client')||{}).value||'';
+    const clientName = sel==='__custom' ? (($('#sheet-body #f-custom')||{}).value?.trim()||'') : sel;
+    const amount = parseFloat(($('#sheet-body #f-amount')||{}).value)||0;
+    if(!clientName) { toast('⚠️ Please select a client'); return; }
+    if(!amount) { toast('⚠️ Please enter an amount'); return; }
+    const dateVal = ($('#sheet-body #f-date')||{}).value;
+    const data = {
+      clientName,
+      amount,
+      frequency: ($('#sheet-body #f-freq')||{}).value||'monthly',
+      nextDate: dateVal||todayISO(),
+      notes: ($('#sheet-body #f-notes')||{}).value?.trim()||'',
+      paidHistory: editId ? (State.reminders.find(x=>x.id===editId)||{}).paidHistory||[] : [],
+    };
+    if(editId) {
+      const idx = State.reminders.findIndex(x=>x.id===editId);
+      if(idx>-1) State.reminders[idx] = {...State.reminders[idx],...data};
+    } else {
+      State.reminders.unshift({id:uid(),...data});
+      ReminderEngine.requestPermission();
+    }
+    State.save('reminders');
+    Sheet.forceClose();
+    App.render(); App.updateBadges();
+    toast('🔔 Reminder saved!');
+  },
+
+  saveRevenue() {
+    const amount = parseFloat(($('#sheet-body #f-amount')||{}).value)||0;
+    if(!amount) { toast('⚠️ Please enter an amount'); return; }
+    const clientSel = ($('#sheet-body #f-client')||{}).value||'';
+    const [clientId, clientName] = clientSel.includes('|') ? clientSel.split('|') : ['',''];
+    State.revenue.unshift({
+      id:uid(),
+      amount,
+      label: ($('#sheet-body #f-label')||{}).value?.trim()||'Payment',
+      clientId, clientName,
+      date: today(),
+      _ts: Date.now(),
+    });
+    State.save('revenue');
+    Sheet.forceClose();
+    App.render(); App.updateBadges();
+    toast('💰 Revenue logged!');
+  },
+
+  saveTask() {
+    const title = ($('#sheet-body #f-title')||{}).value?.trim();
+    if(!title) { toast('⚠️ Task title is required'); return; }
+    const projSel = ($('#sheet-body #f-project')||{}).value||'';
+    const [projectId, projectName] = projSel.includes('|') ? projSel.split('|') : ['',''];
+    State.tasks.unshift({
+      id:uid(), title,
+      projectId, project:projectName,
+      due: ($('#sheet-body #f-due')||{}).value||'',
+      done:false,
+    });
+    State.save('tasks');
+    Sheet.forceClose();
+    App.render(); App.updateBadges();
+    toast('✅ Task added!');
+  },
+
+  toggleTask(id) {
+    const t = State.tasks.find(x=>x.id===id);
+    if(!t) return;
+    t.done = !t.done;
+    State.save('tasks');
+    App.render(); App.updateBadges();
+    if(t.done) toast('✅ Task complete!');
+  },
+
+  completeProject(id) {
+    const p = State.projects.find(x=>x.id===id);
+    if(!p) return;
+    p.status = 'done';
+    State.save('projects');
+    App.render(); App.updateBadges();
+    toast('🎉 Project completed!');
+  },
+
+  deleteClient(id) {
+    if(!confirm('Remove this client?')) return;
+    State.clients = State.clients.filter(x=>x.id!==id);
+    State.save('clients');
+    Sheet.forceClose();
+    App.render(); App.updateBadges();
+    toast('🗑 Client removed');
+  },
+
+  deleteProject(id) {
+    if(!confirm('Remove this project?')) return;
+    State.projects = State.projects.filter(x=>x.id!==id);
+    State.save('projects');
+    App.render(); App.updateBadges();
+    toast('🗑 Project removed');
+  },
+
+  deleteReminder(id) {
+    State.reminders = State.reminders.filter(x=>x.id!==id);
+    State.save('reminders');
+    App.render(); App.updateBadges();
+    toast('🗑 Reminder removed');
+  },
+
+  deleteRevenue(id) {
+    State.revenue = State.revenue.filter(x=>x.id!==id);
+    State.save('revenue');
+    App.render(); App.updateBadges();
+    toast('🗑 Entry removed');
+  },
+
+  deleteTask(id) {
+    State.tasks = State.tasks.filter(x=>x.id!==id);
+    State.save('tasks');
+    App.render(); App.updateBadges();
+  },
+};
+
+// ═══════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════
+App.updateTopbar();
+App.updateBadges();
+App.render();
+</script>
+</body>
+</html>
